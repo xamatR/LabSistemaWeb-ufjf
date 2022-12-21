@@ -171,6 +171,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -242,62 +244,70 @@ public class Valida extends HttpServlet {
     public boolean validaLogin(String _nome, String _senha) throws ServletException {
 
         // return _nome.equalsIgnoreCase(no) && _senha.equals(pw);
-        boolean result = false;
-        String JDBC_DRIVER = "org.apache.derby.jdbc.ClientDriver";
-        String DB_URL = "jdbc:derby://localhost:1527/matheus";
-        //  Database credentials
-        Connection conn = null;
-        Statement stmt = null;
-        String resp = "EXECUTOU";
-        // Set response content type
+        EntityManagerFactory enf = Persistence.createEntityManagerFactory("labSistemaWebPU");
+        UsuarioJpaController ujc = new UsuarioJpaController(enf);
+        Usuario u = ujc.findUsuario(_nome);
+        if(u == null){
+            return false;
+        }      
+        return u.getSenha().equalsIgnoreCase(_senha);
         
-        try {
-            // Register JDBC driver
-            Class.forName(JDBC_DRIVER);
-            // Open a connection
-            conn = DriverManager.getConnection(DB_URL, bd_us, bd_pw);
-            // Execute SQL query
-            stmt = conn.createStatement();
-            String sql;
-            sql = "SELECT nome, senha FROM usuario where upper(nome) = '"
-                    + _nome.toUpperCase() + "' and senha='" + _senha + "'";
-            ResultSet rs = stmt.executeQuery(sql);
-            // Extract data from result set
-            if (rs.next()) {
-                result = true;
-            }
-            rs.close();
-            stmt.close();
-            conn.close();
-        } catch (SQLException e) {
-            //Handle errors for JDBC
-            //throw new ServletException(e);
-            resp = e.getMessage();
-            throw new ServletException(e);
-        } catch (Exception e) {
-            //Handle errors for Class.forName
-            //throw new ServletException(e);
-            resp = e.getMessage();
-            throw new ServletException(e);
-        } finally {
-            System.out.printf(resp);
-            //finally block used to close resources
-            try {
-                if (stmt != null) {
-                    stmt.close();
-                }
-            } catch (SQLException e) {
-                throw new ServletException(e);
-            }// nothing we can do
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                throw new ServletException(e);
-            }//end finally try
-        } //end try    
-        return result;
+//        boolean result = false;
+//        String JDBC_DRIVER = "org.apache.derby.jdbc.ClientDriver";
+//        String DB_URL = "jdbc:derby://localhost:1527/matheus";
+//        //  Database credentials
+//        Connection conn = null;
+//        Statement stmt = null;
+//        String resp = "EXECUTOU";
+//        // Set response content type
+//        
+//        try {
+//            // Register JDBC driver
+//            Class.forName(JDBC_DRIVER);
+//            // Open a connection
+//            conn = DriverManager.getConnection(DB_URL, bd_us, bd_pw);
+//            // Execute SQL query
+//            stmt = conn.createStatement();
+//            String sql;
+//            sql = "SELECT nome, senha FROM usuario where upper(nome) = '"
+//                    + _nome.toUpperCase() + "' and senha='" + _senha + "'";
+//            ResultSet rs = stmt.executeQuery(sql);
+//            // Extract data from result set
+//            if (rs.next()) {
+//                result = true;
+//            }
+//            rs.close();
+//            stmt.close();
+//            conn.close();
+//        } catch (SQLException e) {
+//            //Handle errors for JDBC
+//            //throw new ServletException(e);
+//            resp = e.getMessage();
+//            throw new ServletException(e);
+//        } catch (Exception e) {
+//            //Handle errors for Class.forName
+//            //throw new ServletException(e);
+//            resp = e.getMessage();
+//            throw new ServletException(e);
+//        } finally {
+//            System.out.printf(resp);
+//            //finally block used to close resources
+//            try {
+//                if (stmt != null) {
+//                    stmt.close();
+//                }
+//            } catch (SQLException e) {
+//                throw new ServletException(e);
+//            }// nothing we can do
+//            try {
+//                if (conn != null) {
+//                    conn.close();
+//                }
+//            } catch (SQLException e) {
+//                throw new ServletException(e);
+//            }//end finally try
+//        } //end try    
+//        return result;
     }
 
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
